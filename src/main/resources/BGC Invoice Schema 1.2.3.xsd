@@ -1,0 +1,1737 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:simpleType name="documentType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[a-zA-Z]{3}[0-9]{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="contact">
+		<xs:sequence>
+			<xs:element name="name" minOccurs="0"/>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="phone" type="phoneNumber"/>
+				<xs:element name="fax" type="phoneNumber"/>
+				<xs:element name="email" type="emailAddress"/>
+				<xs:element name="URL" type="webAddress"/>
+			</xs:choice>
+			<xs:element name="text" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="typedContact">
+		<xs:complexContent>
+			<xs:extension base="contact">
+				<xs:attribute name="type" type="xs:string" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="address">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>addressee, whom this address referes to</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="reference" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>additional reference to addressee, e.g. name of department or employee for company or C/O reference</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="street" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="number" type="xs:string" use="optional"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="location" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>in case address is not associated with a street</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="postOfficeBox" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>post office box reference</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="number" type="xs:string" use="optional">
+								<xs:annotation>
+									<xs:documentation>post office box number</xs:documentation>
+								</xs:annotation>
+							</xs:attribute>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="town" minOccurs="0">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="postCode" type="xs:string" use="optional"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="country" type="country" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="typedAddress">
+		<xs:complexContent>
+			<xs:extension base="address">
+				<xs:attribute name="type" type="xs:string" use="optional">
+					<xs:annotation>
+						<xs:documentation>type of address</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="emailAddress">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<xs:simpleType name="phoneNumber">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<xs:complexType name="webAddress">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="text" type="xs:string" use="optional">
+					<xs:annotation>
+						<xs:documentation>Text to display on the link</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:simpleType name="countryCode">
+		<xs:annotation>
+			<xs:documentation>ISO country code</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[A-Z]{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="country">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="code" type="countryCode" use="optional">
+					<xs:annotation>
+						<xs:documentation>ISO country code, e.g. SE, NL</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:simpleType name="bgnr">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="10"/>
+			<xs:pattern value="[0-9]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="optionalBgnr">
+		<xs:union memberTypes="bgnr">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value=""/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+	<xs:simpleType name="date">
+		<xs:union memberTypes="xs:date">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value=""/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+	<xs:simpleType name="value">
+		<xs:union memberTypes="xs:decimal">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value=""/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+	<xs:simpleType name="nonNegativeInteger">
+		<xs:union memberTypes="xs:nonNegativeInteger">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value=""/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+	<xs:simpleType name="integer">
+		<xs:union memberTypes="xs:integer">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value=""/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+	<xs:complexType name="unit">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="code" type="xs:string" use="optional" default="unit"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="quantity">
+		<xs:simpleContent>
+			<xs:extension base="value">
+				<xs:attribute name="unitCode" type="xs:string" use="optional" default="unit"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:simpleType name="currencyCode">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[A-Z]{3}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="amount">
+		<xs:simpleContent>
+			<xs:extension base="value">
+				<xs:attribute name="currency" type="currencyCode" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="period">
+		<xs:sequence>
+			<xs:element name="startDate" type="xs:date"/>
+			<xs:element name="endDate" type="xs:date" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="vatAmount">
+		<xs:simpleContent>
+			<xs:extension base="amount">
+				<xs:attribute name="rate" type="value" use="optional"/>
+				<xs:attribute name="base" type="value" use="optional"/>
+				<xs:attribute name="vatCode" type="xs:string" use="optional"/>
+				<xs:attribute name="currencyAC" type="xs:string" use="optional"/>
+				<xs:attribute name="baseAC" type="value" use="optional"/>
+				<xs:attribute name="vatAmountAC" type="value" use="optional"/>
+				<xs:attribute name="vatCodeAC" type="xs:string" use="optional"/>
+				<xs:attribute name="text" type="xs:string" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="percentAmount">
+		<xs:simpleContent>
+			<xs:extension base="amount">
+				<xs:attribute name="percent" type="value" use="required"/>
+				<xs:attribute name="base" type="value" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="unitAmount">
+		<xs:simpleContent>
+			<xs:extension base="amount">
+				<xs:attribute name="unit" type="xs:string" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="method">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="code" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="paymentMethod">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="code" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="terms">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="code" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="identifier">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="type" type="xs:string" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="webRequest">
+		<xs:sequence>
+			<xs:element name="webParameter" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="name" type="xs:string" use="required"/>
+							<xs:attribute name="type" type="xs:string" use="optional"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="url" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="images">
+		<xs:sequence>
+			<xs:element name="image">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="src" type="xs:string" use="required"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="url" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="seller">
+		<xs:annotation>
+			<xs:documentation>issuer of the invoice, biller</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="name" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>seller name</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="vatDetails" type="vatDetails" minOccurs="0"/>
+			<xs:element name="unitNumber" type="unitNumber" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="dispatchUnitNumber" type="xs:string" minOccurs="0"/>
+			<xs:element name="postalAddress" type="address" minOccurs="0"/>
+			<xs:element name="boardAddress" type="address" minOccurs="0"/>
+			<xs:element name="salesContact" type="contact" minOccurs="0"/>
+			<xs:element name="mainContact" type="contact" minOccurs="0"/>
+			<xs:element name="accounts" type="accounts"/>
+			<xs:element name="sender" type="sender" minOccurs="0"/>
+			<xs:element name="bank" type="bank" minOccurs="0"/>
+			<xs:element name="groupName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="sv">Grupphuvudman. Anges i sidfoten på fakturan.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="gs1" type="gs1" minOccurs="0"/>
+			<xs:element name="agreementID" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>seller identifiction, business ID</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="buyerID" type="xs:string" use="optional"/>
+		<xs:attribute name="bgnr" type="bgnr" use="optional">
+			<xs:annotation>
+				<xs:documentation>BG-number associated with seller</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="bgcID" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>BGC unique identifier for seller (kundnummer)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="sender">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string"/>
+			<xs:element name="vatDetails" type="vatDetails" minOccurs="0"/>
+			<xs:element name="unitNumber" type="unitNumber" minOccurs="0"/>
+			<xs:element name="postalAddress" type="address" minOccurs="0"/>
+			<xs:element name="contact" type="typedContact" minOccurs="0"/>
+			<xs:element name="gs1" type="gs1" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="optional"/>
+		<xs:attribute name="bgnr" type="bgnr" use="optional">
+			<xs:annotation>
+				<xs:documentation>BG-number associated with sender</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="bgcID" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>BGC unique identifier for sender (kundnummer)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="buyer">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>buyer name</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="vatDetails" type="vatDetails" minOccurs="0"/>
+			<xs:element name="unitNumber" type="unitNumber" minOccurs="0"/>
+			<xs:element name="dispatchUnitNumber" type="xs:string" minOccurs="0"/>
+			<xs:element name="postalAddress" type="address" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>buyer postal address</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="boardAddress" type="address" minOccurs="0"/>
+			<xs:element name="contact" type="typedContact" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>buyer contact information</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="accounts" type="accounts" minOccurs="0"/>
+			<xs:choice>
+				<xs:sequence>
+					<xs:element name="recipient" type="recipient" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>information about invoice recipient, if other than buyer</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+				<xs:element name="bankCustomer" type="bankCustomer" minOccurs="0"/>
+			</xs:choice>
+			<xs:element name="identifier" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="bank" type="bank" minOccurs="0"/>
+			<xs:element name="gs1" type="gs1" minOccurs="0"/>
+			<xs:element name="agreementID" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="optional"/>
+		<xs:attribute name="sellerID" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>seller's identity on the buyer</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="recipient">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string" minOccurs="0"/>
+			<xs:element name="vatDetails" type="vatDetails" minOccurs="0"/>
+			<xs:element name="postalAddress" type="address" minOccurs="0"/>
+			<xs:element name="unitNumber" type="unitNumber" minOccurs="0"/>
+			<xs:element name="contact" type="typedContact" minOccurs="0"/>
+			<xs:element name="gs1" type="gs1" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="optional"/>
+		<xs:attribute name="bgnr" type="bgnr" use="optional">
+			<xs:annotation>
+				<xs:documentation>BG-number associated with recipient</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="bgcID" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>BGC unique identifier for recipient (kundnummer)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="deliveree">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string" minOccurs="0"/>
+			<xs:element name="vatDetails" type="vatDetails" minOccurs="0"/>
+			<xs:element name="deliveryAddress" type="address" minOccurs="0"/>
+			<xs:element name="unitNumber" type="unitNumber" minOccurs="0"/>
+			<xs:element name="contact" type="typedContact" minOccurs="0"/>
+			<xs:element name="gs1" type="gs1" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="bankCustomer">
+		<xs:sequence>
+			<xs:element name="identifier" type="identifier"/>
+			<xs:element name="bank" type="bank"/>
+			<xs:element name="invoiceReference" type="invoiceReference" minOccurs="0"/>
+			<xs:element name="invoiceMessage" type="xs:string" minOccurs="0"/>
+			<xs:element name="changeableAmount" type="xs:boolean"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="bank">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string" minOccurs="0"/>
+			<xs:element name="postalAddress" type="address" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="optional"/>
+		<xs:attribute name="code" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="resourceReference">
+		<xs:sequence>
+			<xs:element name="date" type="date" minOccurs="0"/>
+			<xs:element name="URL" type="webAddress" minOccurs="0"/>
+			<xs:element name="text" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="optional"/>
+		<xs:attribute name="rowID" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="typedResourceReference">
+		<xs:complexContent>
+			<xs:extension base="resourceReference">
+				<xs:attribute name="type" type="xs:string" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="agreementReference">
+		<xs:complexContent>
+			<xs:extension base="resourceReference">
+				<xs:sequence>
+					<xs:element name="agreementRate" type="value" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation xml:lang="sv">Aktuell avtalsränta</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="objectAddress" type="address" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>Object address, e.g. real estate address</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="capitalAmount" type="amount" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>Capital amount of e.g. the real estate</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="creditorAddress" type="address" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation xml:lang="sv">Fordringsägarens adress</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="buyerID" type="xs:string" use="optional">
+					<xs:annotation>
+						<xs:documentation>Buyer's reference of the agreement, for example customer number.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="invoiceReference">
+		<xs:complexContent>
+			<xs:extension base="resourceReference">
+				<xs:sequence>
+					<xs:element name="netAmount" type="amount" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>amount to pay, excluding VAT</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="vatAmount" type="vatAmount" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>VAT amount</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="totalAmount" type="amount" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>amount to pay, including VAT</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="vatDetails">
+		<xs:sequence>
+			<xs:element name="vatNumber" type="xs:string"/>
+			<xs:element name="vatRegistration" minOccurs="0">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="date" type="date" use="optional"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="homeTown" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="account">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="type" type="xs:string" use="required"/>
+				<xs:attribute name="bic" type="xs:string" use="optional"/>
+				<xs:attribute name="id" type="xs:string" use="optional"/>
+				<xs:attribute name="swift" type="xs:string" use="optional"/>
+				<xs:attribute name="primary" type="xs:boolean" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="accounts">
+		<xs:sequence maxOccurs="unbounded">
+			<xs:element name="account" type="account" maxOccurs="unbounded">
+				<xs:unique name="account-unique">
+					<xs:selector xpath="account"/>
+					<xs:field xpath="@id"/>
+				</xs:unique>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="article">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>article name or description</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="alternativeName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>alternative article name or description</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="unit" type="unit" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation/>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="URL" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>URL to site containing detailed information about the article</xs:documentation>
+				</xs:annotation>
+				<!-- TODO wrong data type; should be 'webAddress' -->
+			</xs:element>
+			<xs:element name="bestBeforeDate" type="date" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation/>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="manufacturer" type="manufacturer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation/>
+				</xs:annotation>
+			</xs:element>
+			<!-- TODO revert to correct data type: unit -->
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>seller's article identitet (number)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="buyerID" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>buyer's article identitet (number)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="alternativeNo" type="xs:string" use="optional"/>
+		<xs:attribute name="alternativeType" type="xs:string" use="optional"/>
+		<xs:attribute name="batchNo" type="xs:string" use="optional"/>
+		<xs:attribute name="serialNo" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="discount">
+		<xs:sequence>
+			<xs:element name="text" type="xs:string" minOccurs="0"/>
+			<xs:element name="amount" type="amount" minOccurs="0"/>
+			<xs:element name="netAmount" type="amount" minOccurs="0"/>
+			<xs:element name="vatAmount" type="vatAmount" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="type" type="xs:string" use="optional"/>
+		<xs:attribute name="percent" type="value" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="manufacturer">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string" minOccurs="0"/>
+			<xs:element name="vatDetails" type="vatDetails" minOccurs="0"/>
+			<xs:element name="unitNumber" type="unitNumber" minOccurs="0"/>
+			<xs:element name="postalAddress" type="address" minOccurs="0"/>
+			<xs:element name="mainContact" type="xs:string" minOccurs="0"/>
+			<xs:element name="gs1" type="gs1" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:simpleType name="gs1">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<xs:complexType name="unitNumber">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="type" type="xs:string" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="invoice">
+		<xs:sequence>
+			<xs:element name="invoiceDetails" type="invoiceDetails"/>
+			<xs:choice>
+				<xs:element name="invoiceRow" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="invoiceRow">
+								<xs:sequence>
+									<xs:element name="subInvoiceRow" type="invoiceRow" minOccurs="0" maxOccurs="unbounded"/>
+								</xs:sequence>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="invoiceRowPre" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="layout" minOccurs="0">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="font" minOccurs="0">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="family" type="xs:string" default="Verdana, Arial, New Times Roman" minOccurs="0"/>
+													<xs:element name="size" type="xs:nonNegativeInteger" default="10" minOccurs="0"/>
+													<xs:element name="bold" type="xs:boolean" default="false" minOccurs="0"/>
+													<xs:element name="italic" type="xs:boolean" default="false" minOccurs="0"/>
+													<xs:element name="underlined" type="xs:boolean" default="false" minOccurs="0"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="text" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>The pre-formatted text.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="id" type="xs:string" use="optional"/>
+						<xs:attribute name="groupID" type="xs:string" use="optional"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+			<xs:element name="seller" type="seller"/>
+			<xs:element name="buyer" type="buyer"/>
+			<xs:element name="payment" type="payment"/>
+			<xs:element name="delivery" type="deliveryDetails" minOccurs="0"/>
+			<xs:element name="specification" type="specification" minOccurs="0"/>
+			<xs:element name="epiDetails" type="epiDetails" minOccurs="0"/>
+			<xs:element name="currency" minOccurs="0">
+				<xs:complexType>
+					<xs:attribute name="code" type="currencyCode"/>
+					<xs:attribute name="rate" type="xs:decimal"/>
+					<xs:attribute name="rateEntity" type="xs:decimal"/>
+					<xs:attribute name="codeAC" type="currencyCode"/>
+					<xs:attribute name="exchangeRateAC" type="xs:decimal"/>
+					<xs:attribute name="rateEntityAC" type="xs:decimal"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="printInfo" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="copyCode" type="xs:string"/>
+						<xs:element name="exportFlag" type="xs:boolean"/>
+						<xs:element name="languageCode" type="countryCode"/>
+						<xs:element name="originalCode" type="xs:string"/>
+						<xs:element name="text" type="xs:string"/>
+						<xs:element name="postage" type="xs:string"/>
+						<xs:element name="layout" type="xs:string"/>
+						<xs:element name="acknowledgeEmail" type="emailAddress" minOccurs="0"/>
+						<xs:element name="imageBase64" type="imageBase64Object" minOccurs="0"/>
+					</xs:sequence>
+					<xs:attribute name="id" type="xs:string" use="optional">
+						<xs:annotation>
+							<xs:documentation xml:lang="sv">Identitet på avtalet, t.ex. avtalsnr hos printbyrån.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="factoring" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="companyName" type="xs:string"/>
+						<xs:element name="account" type="account" maxOccurs="unbounded"/>
+						<xs:element name="text" type="xs:string" maxOccurs="unbounded"/>
+						<xs:element name="bank" type="bank" minOccurs="0"/>
+					</xs:sequence>
+					<xs:attribute name="id" type="xs:string" use="required"/>
+					<xs:attribute name="type" type="xs:string" use="optional"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="enclosures" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="enclosureDetails" type="enclosureDetails" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="required"/>
+		<xs:attribute name="type" type="documentType" use="required"/>
+		<xs:attribute name="subType" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:element name="invoice" type="invoice">
+		<xs:key name="invoiceType">
+			<xs:selector xpath="."/>
+			<xs:field xpath="@type"/>
+		</xs:key>
+		<xs:keyref name="invoiceTypeReference" refer="invoiceType">
+			<xs:selector xpath="invoiceDetails/invoiceType"/>
+			<xs:field xpath="@code"/>
+		</xs:keyref>
+	</xs:element>
+	<xs:complexType name="invoiceDetails">
+		<xs:sequence>
+			<xs:element name="invoiceType" minOccurs="0">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="code" type="xs:string" use="required"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="identifier" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="invoiceNumber" type="xs:string"/>
+			<xs:element name="invoiceDate" type="xs:date"/>
+			<xs:element name="invoicePeriod" type="period" minOccurs="0"/>
+			<xs:element name="copy" type="xs:string" minOccurs="0"/>
+			<xs:choice>
+				<xs:element name="sellerReference" type="xs:string" minOccurs="0"/>
+				<xs:sequence>
+					<xs:element name="sellerReferenceID" type="xs:string" minOccurs="0"/>
+					<xs:element name="sellerReferenceName" type="xs:string" minOccurs="0"/>
+				</xs:sequence>
+			</xs:choice>
+			<xs:element name="priceListReference" type="priceListReference" minOccurs="0"/>
+			<xs:element name="tenderReference" type="tenderReference" minOccurs="0"/>
+			<xs:element name="orderReference" type="orderReference" minOccurs="0"/>
+			<xs:element name="remainderReference" type="remainderReference" minOccurs="0"/>
+			<xs:element name="invoiceReference" type="invoiceReference" minOccurs="0"/>
+			<xs:element name="agreementReference" type="agreementReference" minOccurs="0"/>
+			<xs:element name="documentReference" type="typedResourceReference" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="customerReferenceNumber" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Undernivå till avtalsnr ex kundnr</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="referenceID" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="invoiceTotal" type="invoiceTotal"/>
+			<xs:element name="costCenter" type="xs:string" minOccurs="0"/>
+			<xs:element name="shortProposedAccount" type="xs:string" minOccurs="0"/>
+			<xs:element name="normalProposedAccount" type="xs:string" minOccurs="0"/>
+			<xs:element name="vatAmount" type="vatAmount" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="text" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:choice minOccurs="0">
+				<xs:element name="URL" type="webAddress" maxOccurs="unbounded"/>
+				<xs:element name="webRequest" type="webRequest"/>
+			</xs:choice>
+			<xs:element name="images" type="images" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="expenses" type="expenses" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="legislationDetails" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="vatIncluded" type="xs:string" minOccurs="0"/>
+						<xs:element name="euInfo" type="xs:string" minOccurs="0"/>
+						<xs:element name="fTaxStatement" type="xs:string" minOccurs="0"/>
+						<xs:element name="vatReference" type="xs:string" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="discountDetails" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="date" type="date" minOccurs="0"/>
+						<xs:element name="baseAmount" type="amount" minOccurs="0"/>
+						<xs:element name="discount" type="discount"/>
+						<xs:element name="sumOfDiscountAndCharges" type="amount" minOccurs="0"/>
+					</xs:sequence>
+					<xs:attribute name="type" type="xs:string" use="optional"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="freightDetails" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="text" type="xs:string"/>
+						<xs:element name="freightAmount" type="amount" minOccurs="0"/>
+						<xs:element name="vatAmount" type="vatAmount" minOccurs="0"/>
+						<xs:element name="totalAmount" type="amount" minOccurs="0"/>
+					</xs:sequence>
+					<xs:attribute name="id" type="xs:string" use="optional"/>
+					<xs:attribute name="sellerReferenceID" type="xs:string" use="optional"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="quantity" type="quantity" minOccurs="0"/>
+			<xs:element name="projectReference" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="URL" type="webAddress" minOccurs="0"/>
+						<xs:element name="text" type="xs:string" minOccurs="0"/>
+					</xs:sequence>
+					<xs:attribute name="id" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="expenses">
+		<xs:sequence>
+			<xs:element name="text" type="xs:string" minOccurs="0"/>
+			<xs:element name="amount" type="amount" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>amount to pay</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="netAmount" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>amount to pay, excluding VAT</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="amount">
+							<xs:attribute name="percent" type="xs:string" use="optional"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="vatAmount" type="vatAmount" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>VAT amount</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="totalAmount" type="amount" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Total amount incl VAT</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="baseAmount" type="amount" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="type" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="payment">
+		<xs:sequence>
+			<xs:element name="dueDate" type="date">
+				<xs:annotation>
+					<xs:documentation>last date to issue payment</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="date" type="date" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>payment date</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="period" type="period" minOccurs="0"/>
+			<xs:element name="terms" type="terms" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>payment terms</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="method" type="paymentMethod">
+				<xs:annotation>
+					<xs:documentation>how the payment is done</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="cashDiscount" type="cashDiscount" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>discount associated with payment if paid with cash</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="overDueFine" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>fine issued if payment is not paid on time</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="rate" type="xs:string" use="optional">
+								<xs:annotation>
+									<xs:documentation>over due fine rate in percent</xs:documentation>
+								</xs:annotation>
+							</xs:attribute>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="netAmount" type="amount">
+				<xs:annotation>
+					<xs:documentation>amount to pay, excluding VAT</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="vatAmount" type="vatAmount" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>VAT amount</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="totalAmount" type="amount">
+				<xs:annotation>
+					<xs:documentation>amount to pay, including VAT</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="roundingAmount" type="amount" minOccurs="0"/>
+			<xs:element name="interest" type="interest" minOccurs="0"/>
+			<xs:element name="paymentHistory" type="paymentHistory" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="status">
+			<xs:annotation>
+				<xs:documentation>payment status</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="paid"/>
+					<xs:enumeration value="unpaid"/>
+					<xs:enumeration value="partly_paid"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="paymentHistory">
+		<xs:sequence>
+			<xs:element name="paidAmount" type="amount">
+				<xs:annotation>
+					<xs:documentation>amount paid already</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="unpaidAmount" type="amount">
+				<xs:annotation>
+					<xs:documentation>remaining amount to be paid to complete current payment</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="interest" type="interest" minOccurs="0"/>
+			<xs:element name="processingCosts" type="amount" minOccurs="0"/>
+			<xs:element name="partialPayment" type="partialPayment" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>information about previous payments</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="partialPayment">
+		<xs:sequence>
+			<xs:element name="netAmount" type="amount"/>
+			<xs:element name="amount" type="amount"/>
+			<xs:element name="dueDate" type="date"/>
+			<xs:element name="interest" type="interest" minOccurs="0"/>
+			<xs:element name="processingCosts" type="amount" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="reference" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="interest">
+		<xs:sequence>
+			<xs:element name="amount" type="amount" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="rate" type="value" use="optional"/>
+		<xs:attribute name="days" type="nonNegativeInteger" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="cashDiscount">
+		<xs:annotation>
+			<xs:documentation>discount associated with payment if paid with cash</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="date" type="date" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>discount is valid if payment is issued before this date</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="baseAmount" type="amount" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>amount on which to calcute discount on</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="discount" type="discount" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>discount in percent</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="deliveryDetails">
+		<xs:sequence>
+			<xs:element name="noteNumber" type="xs:string" minOccurs="0"/>
+			<xs:choice minOccurs="0">
+				<xs:element name="date" type="xs:date"/>
+				<xs:element name="period" type="period"/>
+			</xs:choice>
+			<xs:element name="method" type="method" minOccurs="0"/>
+			<xs:element name="terms" type="terms" minOccurs="0"/>
+			<xs:element name="deliveree" type="deliveree" minOccurs="0"/>
+			<xs:element name="logistics" type="logistics" minOccurs="0"/>
+			<xs:element name="installationAddress" type="address" minOccurs="0"/>
+			<xs:element name="manufacturer" type="manufacturer" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="priceListReference">
+		<xs:complexContent>
+			<xs:extension base="resourceReference"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tenderReference">
+		<xs:complexContent>
+			<xs:extension base="resourceReference">
+				<xs:sequence>
+					<xs:element name="quantity" type="quantity" minOccurs="0"/>
+				</xs:sequence>
+				<xs:attribute name="buyerID" type="xs:string" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="orderReference">
+		<xs:complexContent>
+			<xs:extension base="resourceReference">
+				<xs:sequence>
+					<xs:element name="buyerDate" type="xs:date" minOccurs="0"/>
+					<xs:element name="buyerURL" type="webAddress" minOccurs="0"/>
+					<xs:element name="quantity" type="quantity" minOccurs="0"/>
+					<xs:element name="confirmedQuantity" type="quantity" minOccurs="0"/>
+				</xs:sequence>
+				<xs:attribute name="buyerID" type="xs:string" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="remainderReference">
+		<xs:complexContent>
+			<xs:extension base="resourceReference">
+				<xs:attribute name="buyerID" type="xs:string" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="deliveryReference">
+		<xs:complexContent>
+			<xs:extension base="resourceReference"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="invoiceTotal">
+		<xs:sequence>
+			<xs:element name="netAmount" type="amount" minOccurs="0"/>
+			<xs:element name="vatAmount" type="vatAmount" minOccurs="0"/>
+			<xs:element name="totalAmount" type="amount"/>
+			<xs:element name="vatAmountNoTaxDeduction" type="vatAmount" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="sv">Icke avdragsgill moms</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="totalAmountInclVatAmountNoTaxDeduction" type="amount" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="sv">Totalbelopp inklusive icke avdragsgill moms</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="roundingAmount" type="amount" minOccurs="0"/>
+			<xs:choice>
+				<xs:sequence>
+					<xs:element name="sumRowAmount" type="amount" minOccurs="0"/>
+					<xs:element name="sumRowAmountInclDiscount" type="amount" minOccurs="0"/>
+				</xs:sequence>
+				<xs:element name="netExclDiscountAndCharges" type="amount" minOccurs="0"/>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="invoiceRow">
+		<xs:sequence>
+			<xs:element name="article" type="article" minOccurs="0"/>
+			<xs:element name="text" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="rowOrderReference" type="orderReference" minOccurs="0"/>
+			<xs:element name="rowPriceListReference" type="priceListReference" minOccurs="0"/>
+			<xs:element name="rowTenderReference" type="tenderReference" minOccurs="0"/>
+			<xs:element name="rowDeliveryReference" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="deliveryReference">
+							<xs:sequence>
+								<xs:element name="quantity" type="quantity" minOccurs="0"/>
+							</xs:sequence>
+							<xs:attribute name="buyerID" type="xs:string" use="optional"/>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="rowRemainderReference" minOccurs="0">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="remainderReference">
+							<xs:sequence>
+								<xs:element name="quantity" type="quantity" minOccurs="0"/>
+							</xs:sequence>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="rowInvoiceReference" type="invoiceReference" minOccurs="0"/>
+			<xs:element name="rowPaymentReference" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="payment" type="payment"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="rowDocumentReference" type="typedResourceReference" minOccurs="0"/>
+			<xs:element name="period" type="period" minOccurs="0"/>
+			<xs:element name="quantity" type="quantity" minOccurs="0"/>
+			<xs:element name="deliveredQuantity" type="quantity" minOccurs="0"/>
+			<xs:element name="unitPrice" type="unitAmount" minOccurs="0"/>
+			<xs:element name="shortProposedAccount" type="xs:string" minOccurs="0"/>
+			<xs:element name="normalProposedAccount" type="xs:string" minOccurs="0"/>
+			<xs:element name="costCenter" type="xs:string" minOccurs="0"/>
+			<xs:element name="discount" type="discount" minOccurs="0"/>
+			<xs:element name="netAmount" type="amount" minOccurs="0"/>
+			<xs:element name="vatAmount" minOccurs="0">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="amount">
+							<xs:attribute name="rate" type="value" use="optional"/>
+							<xs:attribute name="base" type="value" use="optional"/>
+							<xs:attribute name="vatCode" type="xs:string" use="optional"/>
+							<xs:attribute name="currencyAC" type="xs:string" use="optional"/>
+							<xs:attribute name="baseAC" type="value" use="optional"/>
+							<xs:attribute name="vatAmountAC" type="value" use="optional"/>
+							<xs:attribute name="vatCodeAC" type="xs:string" use="optional"/>
+							<xs:attribute name="text" type="xs:string" use="optional"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="totalAmount" type="amount" minOccurs="0"/>
+			<xs:element name="expenses" type="expenses" minOccurs="0"/>
+			<xs:element name="currencyRate" type="amount" minOccurs="0"/>
+			<xs:element name="deliveryNoteNumber" type="xs:string" minOccurs="0"/>
+			<xs:element name="delivererID" type="xs:string" minOccurs="0"/>
+			<xs:element name="delivererName" type="xs:string" minOccurs="0"/>
+			<xs:element name="wayBillReferenceID" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Referens till fraktsedel</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="agreementID" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Avtalsreferens</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="agreementURL" type="webAddress" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Länk till avtal</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="optional"/>
+		<xs:attribute name="groupID" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>assign row a group identity, used for grouping rows</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="type" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="specification">
+		<xs:sequence>
+			<xs:any processContents="skip" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="epiDetails">
+		<xs:sequence>
+			<xs:element name="identificationDetails">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="reference" type="xs:string" minOccurs="0"/>
+						<xs:element name="URL" type="webAddress" minOccurs="0"/>
+						<xs:element name="email" type="emailAddress" minOccurs="0"/>
+						<xs:element name="orderInfo" type="xs:string" minOccurs="0"/>
+						<xs:element name="orderingCustomer" minOccurs="0">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="name" type="xs:string"/>
+									<xs:element name="addressText" type="xs:string" minOccurs="0"/>
+								</xs:sequence>
+								<xs:attribute name="id" type="xs:string" use="optional"/>
+								<xs:attribute name="bic" type="xs:string" use="optional"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="date" type="date" use="required"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="beneficiary">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:choice minOccurs="0">
+							<xs:element name="epiBEI" type="identifier"/>
+							<xs:choice>
+								<xs:element name="nameAddress" type="xs:string"/>
+								<xs:sequence>
+									<xs:element name="name" type="xs:string"/>
+									<xs:element name="address" type="address"/>
+								</xs:sequence>
+							</xs:choice>
+						</xs:choice>
+						<xs:element name="account" type="account"/>
+					</xs:sequence>
+					<xs:attribute name="bic" type="xs:string" use="optional"/>
+					<xs:attribute name="id" type="xs:string" use="optional"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="paymentInstructions">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="transactionTypeCode" type="xs:string" minOccurs="0"/>
+						<xs:element name="instructionCode" type="xs:string" minOccurs="0"/>
+						<xs:element name="remittanceID">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" use="optional">
+											<xs:annotation>
+												<xs:documentation>Type of remittanceID, e.g. OCR number.</xs:documentation>
+											</xs:annotation>
+										</xs:attribute>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="instructedAmount" type="amount"/>
+						<xs:element name="optionDate">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:date">
+										<xs:attribute name="type">
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:pattern value="OUR|BEN|SHA|debit"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:attribute>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="id" type="xs:string" use="optional"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="logistics">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string"/>
+			<xs:element name="delivererAddress" type="address" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Speditörens addressuppgifter</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="vatDetails" type="vatDetails" minOccurs="0"/>
+			<xs:element name="deliveryAddress" type="address" minOccurs="0"/>
+			<xs:element name="unitNumber" type="unitNumber" minOccurs="0"/>
+			<xs:element name="contact" type="typedContact" minOccurs="0"/>
+			<xs:element name="gs1" type="gs1" minOccurs="0"/>
+			<xs:element name="wayBillReference" minOccurs="0">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="resourceReference">
+							<xs:attribute name="code" type="xs:string" use="optional"/>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="enclosureDetails">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Name of the enclosure as presented to the end customer. The name is presented in the invoice template, e.g. Invoice number 1234.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="date" type="date" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Date when the enclosure was created.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:choice>
+				<xs:sequence>
+					<xs:element name="URL" type="webAddress">
+						<xs:annotation>
+							<xs:documentation>URL including protocol name (e.g. http or https) to the enclosure or portal containing the enclosure. E.g. http://www.enclosureportal.com/request.asp</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="id" type="xs:string" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>Document name, image name, or other ID of the enclosure that is needed to uniquely identify a document. E.g. enclosure1234.pdf. Used along with username and password to find the right enclosure.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="username" type="xs:string" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>Username required to reach an enclosure located in a portal demanding username and password. Sent to the portal using a POST request.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="password" type="xs:string" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>Password required to reach an enclosure located in a portal demanding username and password. Sent to the portal using a POST request.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+				<xs:element name="encodedObject" type="encodedEnclosureObject" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>
+							If the enclosure is sent along with the document, it should be encoded within this element.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute name="mimeCode" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Mime type of the enclosure, e.g. image/jpeg. See the following URL for valid types: http://www.iana.org/assignments/media-types/index.html</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="type" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>
+					Enclosure type, e.g. CT=contract, DQ =Delivery note (följesedel) etc.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="encodedEnclosureObject">
+		<xs:sequence>
+			<xs:element name="data" type="xs:base64Binary">
+				<xs:annotation>
+					<xs:documentation>The base64 encoded representation of the enclosure.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="objectID" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="format" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Format of encoded object. Should normally be set to BASE64</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="filename" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The filename of the object, e.g. image1.jpg. For safety reasons, the receipient should always check that the file ending matches the specified mime type.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="lineItem">
+		<xs:sequence>
+			<xs:element name="desc" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="spec" type="xs:string" use="optional"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="amount" minOccurs="0">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="currency" type="currencyCode" use="optional"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>assign line item an unique identity</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="rowID" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>reference to invoice row</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element name="lineItem" type="lineItem"/>
+	<xs:element name="document" type="document">
+		<xs:unique name="unique-enclosure-object-id">
+			<xs:selector xpath="invoice/enclosures/enclosureDetails/encodedObject"/>
+			<xs:field xpath="@objectID"/>
+		</xs:unique>
+		<xs:key name="documentID">
+			<xs:selector xpath="."/>
+			<xs:field xpath="@id"/>
+		</xs:key>
+		<xs:key name="documentType">
+			<xs:selector xpath="."/>
+			<xs:field xpath="@type"/>
+		</xs:key>
+		<xs:keyref name="documentIDReference" refer="documentID">
+			<xs:selector xpath="./*"/>
+			<xs:field xpath="@id"/>
+		</xs:keyref>
+		<xs:keyref name="documentTypeReference" refer="documentType">
+			<xs:selector xpath="./*"/>
+			<xs:field xpath="@type"/>
+		</xs:keyref>
+	</xs:element>
+	<xs:complexType name="document">
+		<xs:sequence>
+			<xs:element name="documentDetails">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="originatorBgnr" type="optionalBgnr" minOccurs="0"/>
+						<xs:element name="originatorID" minOccurs="0"/>
+						<xs:element name="originatorIntermediator" type="intermediator" minOccurs="0"/>
+						<xs:element name="addresseeID" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>arbitrary reference on addressee</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="optional"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="addresseeID2" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>Extra reference on addressee that can be used if necessary.</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="optional"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="addresseeIntermediator" type="intermediator" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:any />
+		</xs:sequence>
+		
+		
+		<xs:attribute name="id" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:maxLength value="25"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="type" type="documentType" use="required">
+			<xs:annotation>
+				<xs:documentation>document type</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="subType" type="xs:string" use="optional"/>
+		<xs:attribute name="templateID" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>which presentation template to use</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="distribution" use="optional" default="B2C">
+			<xs:annotation>
+				<xs:documentation>how to distribute document; use "storeOnly" if document is not to be distributed</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:pattern value="B2C|B2B|storeOnly"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="originPaper" type="xs:string" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>whether document is originally a paper document</xs:documentation>
+			</xs:annotation>
+			<!-- TODO revert to correct data type: xs:boolean -->
+		</xs:attribute>
+		<xs:attribute name="messageTimestamp" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>timestamp is used together with messageID to uniquely identify the document.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="messageID" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>messageID is used together with timestamp to uniquely identify the document.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="bgcID" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>bgcID is used as an unique internal ID. Set by BGC</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="addresseeID">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="40"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="intermediator">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<xs:element name="batch" type="batch">
+		<xs:annotation>
+			<xs:documentation>batch of document, divided into sections</xs:documentation>
+		</xs:annotation>
+		<xs:unique name="unique-bgc-document">
+			<xs:annotation>
+				<xs:documentation>each document must have an unique identity</xs:documentation>
+			</xs:annotation>
+			<xs:selector xpath="section/document"/>
+			<xs:field xpath="@bgcID"/>
+		</xs:unique>
+	</xs:element>
+	<xs:complexType name="batch">
+		<xs:sequence>
+			<xs:element ref="batchDetails"/>
+			<xs:element ref="section" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" use="required">
+			<xs:annotation>
+				<xs:documentation>unique batch id, assigned by the originator of the batch</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:maxLength value="10"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="version" type="versionNumber" use="required">
+			<xs:annotation>
+				<xs:documentation>batch layout version</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="status" type="batchStatus" use="required">
+			<xs:annotation>
+				<xs:documentation>batch status; T - test, P - production, etc</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="batchStatus">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="T|P|C"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:element name="batchDetails" type="batchDetails"/>
+	<xs:complexType name="batchDetails">
+		<xs:sequence>
+			<xs:element name="bgnr" type="optionalBgnr" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>reference to sender or receiver of the batch</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="originatorID" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>reference to sender of the batch by originator alias</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="seller" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>identity of seller, seller's organisationsnummer</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+						<xs:attribute name="id" type="xs:string" use="required"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="intermediator" type="intermediator" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If the sender or receiver is an intermediator, this field contains the intermediator's ID.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="totalSections" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>total number of sections</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="totalDocuments" type="xs:string"/>
+			<xs:element name="outputFileName" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="section" type="section"/>
+	<xs:complexType name="section">
+		<xs:annotation>
+			<xs:documentation>document section containing arbitrary number of documents</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="sectionDetails"/>
+			<xs:element ref="sectionInfo" minOccurs="0"/>
+			<xs:element ref="document" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" use="required">
+			<xs:annotation>
+				<xs:documentation>unique section identity, assigned by the originator of the batch</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:maxLength value="15"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="bgnr" type="optionalBgnr" use="optional">
+			<xs:annotation>
+				<xs:documentation>who the originator or addressee is for the documents in this section</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="originatorID" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>who the originator or addressee is for the documents in this section, by alias instead of bgnr</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="bgnrType" use="required">
+			<xs:annotation>
+				<xs:documentation>type of bgnr</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="originator"/>
+					<xs:enumeration value="addressee"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element name="sectionDetails" type="sectionDetails"/>
+	<xs:complexType name="sectionDetails">
+		<xs:annotation>
+			<xs:documentation>information related to a section</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="totalDocuments" type="nonNegativeInteger">
+				<xs:annotation>
+					<xs:documentation>total number of documents</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="sectionInfo" type="sectionInfo"/>
+	<xs:complexType name="sectionInfo">
+		<xs:annotation>
+			<xs:documentation>additional information related to a section</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="versionNumber">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9]+(\.[0-9]+)+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:element name="messageID" type="xs:string"/>
+	<xs:element name="senderID" type="xs:string"/>
+	<xs:element name="receiverID" type="xs:string"/>
+	<xs:element name="originatorBankID" type="xs:string"/>
+	<xs:element name="addresseeBankID" type="xs:string"/>
+	<xs:element name="originatorBgnr" type="xs:string"/>
+	<xs:element name="originatorID" type="xs:string"/>
+	<xs:complexType name="imageBase64Object">
+		<xs:sequence>
+			<xs:element name="data" type="xs:base64Binary" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The base64 encoded representation of the image.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="URL" type="webAddress" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>URL to the image. Can be used instead of the base64 encoded image representation (data element). The URL must be complete starting with e.g. http:// or https://.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="altText" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Text to use if the image can not be presented.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="width" type="nonNegativeInteger" use="required">
+			<xs:annotation>
+				<xs:documentation>The width of the image in pixels.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="height" type="nonNegativeInteger" use="required">
+			<xs:annotation>
+				<xs:documentation>The height of the image in pixels.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="mimeType" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The mimeType of the image, e.g. image/jpeg.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+</xs:schema>

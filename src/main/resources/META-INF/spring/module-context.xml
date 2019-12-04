@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:task="http://www.springframework.org/schema/task"
+
+
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	   					   http://www.springframework.org/schema/beans/spring-beans.xsd
+						   http://www.springframework.org/schema/batch 
+						   http://www.springframework.org/schema/batch/spring-batch.xsd
+						   http://www.springframework.org/schema/beans      
+       					   http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       					   http://www.springframework.org/schema/mvc/
+       					   http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+       					   http://www.springframework.org/schema/util 
+						   http://www.springframework.org/schema/util/spring-util-3.0.xsd
+						   http://www.springframework.org/schema/task   
+        				   http://www.springframework.org/schema/task/spring-task-3.0.xsd
+	        			   http://www.springframework.org/schema/integration
+						   http://www.springframework.org/schema/integration/spring-integration.xsd
+						   http://www.springframework.org/schema/integration/file
+						   http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+						
+        				 
+						   ">
+
+	<bean id="jobRepository"
+		class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean">
+		<property name="transactionManager" ref="transactionManager" />
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />
+
+	<bean id="jobLauncher"
+		class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+		<property name="jobRepository" ref="jobRepository" />
+	</bean>
+
+	<bean id="domain" class="com.invoices.model.Batch" />
+
+	<job id="readDocument" xmlns="http://www.springframework.org/schema/batch">
+		<step id="readDoc">
+			<tasklet ref="validateDocumentTasklet"></tasklet>
+		</step>
+	</job>
+	<job id="readBatch" xmlns="http://www.springframework.org/schema/batch">
+
+		<step id="validateBatch" next="proccessBatch" >
+			<tasklet ref="validateFileTasklet"  />
+		</step>
+		
+		<step id="proccessBatch" next="removeBatch">
+			<tasklet>
+				<chunk reader="xmlItemReader" writer="sysWriter"
+					processor="" commit-interval="1" />
+			</tasklet>
+		</step>
+		
+		<step id="removeBatch">
+			<tasklet ref="fileDeletingTasklet" />
+		
+		</step>
+
+	</job>
+
+
+
+	<!-- <bean id="multiResourceReader" class="org.springframework.batch.item.file.MultiResourceItemReader"> 
+		<property name="resources" value="file:c:/temp/input/*.csv" /> <property 
+		name="delegate" ref="flatFileItemReader" /> </bean> -->
+
+	<bean id="flatFileItemReader" class="org.springframework.batch.item.file.FlatFileItemReader"
+		scope="step">
+		<property name="lineMapper">
+			<bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+				<property name="lineTokenizer">
+					<bean
+						class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+						<property name="names" value="batchId, status,bgnr,intermediator" />
+					</bean>
+				</property>
+				<property name="fieldSetMapper">
+					<bean
+						class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+						<property name="prototypeBeanName" value="domain" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+		<property name="resource" value="file:#{jobParameters['input.file.name']}" />
+	</bean>
+
+	<bean id="sysWriter" class="com.invoice.writers.CustomItemWriter" scope="step">
+
+		
+	</bean>
+
+	<bean id="flatFileItemWriter" class="org.springframework.batch.item.file.FlatFileItemWriter">
+		<property name="resource" value="file:c:/temp/output/output.csv" />
+		<property name="appendAllowed" value="true" />
+		<property name="lineAggregator">
+			<bean
+				class="org.springframework.batch.item.file.transform.DelimitedLineAggregator">
+				<property name="delimiter" value="," />
+				<property name="fieldExtractor">
+					<bean
+						class="org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor">
+						<!-- <property name="names" value="id,status,batchDetails.bgNumber,batchDetails.intermediator" 
+							/> -->
+						<property name="names" value="id,status,batchDetails.bgNumber,batchDetails.intermediator" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="fileDeletingTasklet" class="com.invoices.tasklets.FileDeletingTasklet">
+		<property name="directory" value="file:c:/temp/input/" />
+	</bean>
+
+	<bean id="validateFileTasklet" class="com.invoices.tasklets.ValidateFileTasklet">
+		<property name="directory" value="file:c:/temp/input/" />
+		<property name="processDir" value="c:/temp/processed/" />
+		
+	</bean>
+
+	<bean id="validateDocumentTasklet" class="com.invoices.tasklets.ValidateDocumentTasklet">
+	
+	</bean>
+
+
+	<bean id="xmlItemReader" class="org.springframework.batch.item.xml.StaxEventItemReader"
+		scope="step">
+		<property name="fragmentRootElementName" value="batch" />
+		<property name="resource" value="file:#{jobParameters['input.file.name']}" />
+		<property name="unmarshaller" ref="batchUnmarshaller" />
+	</bean>
+
+	<bean id="batchUnmarshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+		<property name="classesToBeBound">
+			<list>
+				<value>com.invoices.model.Batch</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="xmlItemWriter" class="org.springframework.batch.item.xml.StaxEventItemWriter">
+		<property name="resource" value="file:c:/temp/input/output.xml" /> 
+		<property name="marshaller" ref="customVrdbMarshaller" />
+		<property name="rootTagName" value="batch" />
+		<property name="overwriteOutput" value="true" />
+	</bean>
+
+	<bean id="customVrdbMarshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+		<property name="classesToBeBound">
+			<list>
+				<value>com.invoices.model.Document</value>
+			</list>
+		</property>
+	</bean>
+	<!--  
+	<bean id="customProcessor" class="com.invoice.writers.CustomProcessor">
+	</bean>
+-->
+
+	<!-- <bean id="runScheduler" class="com.invoices.services.RunScheduler"> 
+		<property name="job" ref="readMultiFileJob" /> <property name="jobLauncher" 
+		ref="jobLauncher" /> </bean> <task:scheduled-tasks> <task:scheduled ref="runScheduler" 
+		method="run" cron="*/10 * * * * *" /> </task:scheduled-tasks> -->
+
+
+
+</beans>
